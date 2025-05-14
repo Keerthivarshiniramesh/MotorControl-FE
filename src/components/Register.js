@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useContext } from 'react';
 import { DContext } from '../Providers';
-
+import logo from '../assests/logo.png'
 
 const Register = () => {
 
@@ -40,7 +40,7 @@ const Register = () => {
                             setContact('')
                             setPassword('')
                             setConfirmPassword('')
-                            window.location.href = "/"
+                            window.location.href = "/home"
                         } else {
                             alert(data.message)
                         }
@@ -62,12 +62,12 @@ const Register = () => {
 
 
     return (
-        <div className="flex flex-col md:flex-row justify-center items-center px-4 py-6 min-h-screen bg-slate-50">
+        <div className="flex flex-col md:flex-row justify-center items-center px-4 py-6 min-h-screen bg-gradient-to-br from-purple-300 via-red-400 to-orange-50">
             {/* Left Section - Logo & Welcome Text */}
             <div className="text-center md:text-left p-4 md:w-5/12">
                 <img
                     className="mx-auto md:mx-0"
-                    src="https://dummyimage.com/512x512/ddd/000.png&text=Logo"
+                    src={logo}
                     alt="register-illus"
                     style={{ height: "150px" }}
                 />

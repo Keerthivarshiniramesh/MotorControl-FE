@@ -1,0 +1,13 @@
+.rotate {
+    animation: rotate-fan 0.5s linear infinite;
+}
+
+@keyframes rotate-fan {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

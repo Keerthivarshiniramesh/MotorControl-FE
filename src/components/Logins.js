@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react'
 import { DContext } from '../Providers'
-
+import logo from '../assests/logo.png'
 
 const Logins = () => {
 
@@ -48,10 +48,10 @@ const Logins = () => {
 
 
     return (
-        <div className="flex flex-col md:flex-row justify-center items-center px-4 py-6 min-h-[85vh]">
+        <div className="flex flex-col md:flex-row h-[100vh] justify-center items-center px-4 py-6  bg-gradient-to-br from-purple-300 via-red-400 to-orange-50">
             {/* Left side - Welcome message */}
             <div className="text-center md:text-left p-4 md:w-5/12">
-                <img className="mx-auto md:mx-0" src="https://dummyimage.com/512x512/ddd/000.png&text=Logo" alt="signin-illus" style={{ height: '150px' }} />
+                <img className="mx-auto md:mx-0" src={logo} alt="signin-illus" style={{ height: '150px' }} />
                 <h1 className="text-2xl md:text-3xl font-bold my-4 text-primary-400">Welcome to Motor Control System!</h1>
                 <p className="text-sm md:text-base">
                     <small>Enter your registered Email and Password to access your user account.</small>
