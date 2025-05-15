@@ -10,6 +10,17 @@ export default function ControlSystem() {
 
     const BeURL = process.env.REACT_APP_BeURL
 
+    // Stop timers
+    const [timers, setTimers] = useState(15)
+    const [disabled, setDisabled] = useState(false)
+    const [start, setStart] = useState(false)
+
+    // Start timers
+    const [duration, setDurations] = useState(null)
+    const [enabled, setEnabled] = useState(true)
+    const [stop, setStop] = useState(true)
+
+
     const use = useNavigate()
     // ─── State ───────────────────────────────────────────────────────────
     const [rpm, setRpm] = useState('');
@@ -26,7 +37,7 @@ export default function ControlSystem() {
     const sendStopToThingSpeak = async (h, m, s) => {
         const now = Date.now();
         // If less than 15s since last stop-update, skip
-        if (now - lastStopTime.current < 15000) {
+        if (now - lastStopTime.current < 10000) {
             console.log('⏱️ Stop update throttled');
             return;
         }
@@ -54,6 +65,9 @@ export default function ControlSystem() {
             return alert('Please enter RPM');
         }
         setIsRunning(true);
+        setTimers(15);
+        setDisabled(false);
+        setStart(true);
 
         // const timer = encodeURIComponent(`${hour}:${minutes}:${seconds}`);
         const url = `https://api.thingspeak.com/update`
@@ -70,14 +84,66 @@ export default function ControlSystem() {
         }
     };
 
+    useEffect(() => {
+        if (!start) return;
 
+        let interval = setInterval(() => {
+            setTimers((prev) => {
+                if (prev < 1) {
+                    clearInterval(interval)
+                    setDisabled(true)
+                    setStart(false)
+
+                    return 0
+                }
+                return prev - 1
+
+            });
+
+
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [start])
+
+
+    console.log(timers)
     const handleStop = async e => {
         e.preventDefault();
         clearInterval(countdownRef.current);
+
         setIsRunning(false);
+        setDurations(15);
+        setEnabled(false);
+        setStop(true);
         // Send the last timer value to ThingSpeak (throttled to 15s)
         await sendStopToThingSpeak(hour, minutes, seconds);
-    };
+
+
+    }
+
+    useEffect(() => {
+        if (!stop) return;
+
+        let interval = setInterval(() => {
+            setDurations((prev) => {
+                if (prev < 1) {
+                    clearInterval(interval)
+                    setEnabled(true)
+                    setStop(false)
+
+                    return 0
+                }
+                return prev - 1
+
+            });
+
+
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [stop])
+
 
     // ─── Countdown Effect ─────────────────────────────────────────────────
     useEffect(() => {
@@ -243,12 +309,12 @@ export default function ControlSystem() {
 
             {/* Start / Stop Buttons */}
             <div className="w-full max-w-md flex justify-between gap-4 mt-2">
-                <button className="flex-1 py-2 bg-green-600 hover:bg-green-500 rounded-full text-white font-bold shadow-lg" disabled={isRunning} onClick={handleStart}>
-                    Start
+                <button className={`flex-1 py-2   rounded-full text-white font-bold shadow-lg ${enabled === true ? "bg-green-600" : "bg-gray-800 "} `} onClick={handleStart}>
+                    {` Start  ${duration === null ? '' : duration}`}
                 </button>
-                <button className="flex-1 py-2 bg-gray-700 hover:bg-gray-800 rounded-full text-white font-bold shadow-lg" onClick={handleStop}
-                    disabled={!isRunning}>
-                    Stop
+                <button className={`flex-1 py-2  rounded-full text-white font-bold shadow-lg ${disabled === true ? "bg-red-500" : "bg-gray-800 "}`} onClick={handleStop}
+                    disabled={!disabled} >
+                    {` Stop  ${timers}`}
                 </button>
             </div>
 
@@ -257,70 +323,3 @@ export default function ControlSystem() {
         </div>
     );
 }
-
-
-{/* <div className="p-4 max-w-md mx-auto border rounded">
-    <form onSubmit={handleStart} className="space-y-4">
-        <div>
-            <label className="block mb-1">RPM:</label>
-            <input
-                type="text"
-                value={rpm}
-                onChange={e => setRpm(e.target.value)}
-                className="w-full border p-1"
-            />
-        </div>
-
-        <div>
-            <label className="block mb-1">Duration (hh:mm:ss):</label>
-            <div className="flex space-x-2">
-                <input
-                    type="number"
-                    value={hour}
-                    onChange={e => setHour(+e.target.value)}
-                    className="w-16 border p-1 text-center"
-                />
-                <span>:</span>
-                <input
-                    type="number"
-                    value={minutes}
-                    onChange={e => setMinutes(+e.target.value)}
-                    className="w-16 border p-1 text-center"
-                />
-                <span>:</span>
-                <input
-                    type="number"
-                    value={seconds}
-                    onChange={e => setSeconds(+e.target.value)}
-                    className="w-16 border p-1 text-center"
-                />
-            </div>
-        </div>
-
-        <div className="flex justify-center space-x-4">
-            <button
-                type="submit"
-                disabled={isRunning}
-                className="px-4 py-2 border rounded disabled:opacity-50"
-            >
-                Start
-            </button>
-            <button
-                type="button"
-                onClick={handleStop}
-                disabled={!isRunning}
-                className="px-4 py-2 border rounded disabled:opacity-50"
-            >
-                Stop
-            </button>
-        </div>
-    </form>
-
-    <div className="mt-4 text-center">
-        <span className="text-xl font-mono">
-            {String(hour).padStart(2, '0')}:
-            {String(minutes).padStart(2, '0')}:
-            {String(seconds).padStart(2, '0')}
-        </span>
-    </div>
-</div> */}
